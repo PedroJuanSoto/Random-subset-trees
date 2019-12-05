@@ -195,7 +195,7 @@ void generate_batch_indices(int seed, int data_size, int batch_size, int *batch_
 
   struct tree *potentials = construct_tree(0, data_size-1);
   struct tree *forbidden = NULL;
-  srand(seed);
+  // srand(seed);
 
   // int place = 0;
   for (int k = 0; k < batch_size; k++)
