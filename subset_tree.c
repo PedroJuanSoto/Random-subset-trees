@@ -225,7 +225,8 @@ int main(int argc, char const *argv[]) {
   printf("\n");
   int *subset = malloc(subset_size*sizeof(int));
   for (int k = 0; k < num_of_subsets; k++) {
-    generate_subsets(seed, set_size, subset_size, subset);    printf("{");
+    generate_subsets(seed, set_size, subset_size, subset);
+    printf("{");
     for (int i = 0; i < subset_size-1; i++)
       printf("%d, ", subset[i]);
     printf("%d}\n", subset[subset_size-1]);
