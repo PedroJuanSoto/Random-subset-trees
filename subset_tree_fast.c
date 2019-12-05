@@ -23,9 +23,9 @@ int tree_search(int key, struct tree *p){
   else if (p->key == key)
     return 1;
   else if (key < p->key)
-    return tree_search(low_high, key, p->left);
+    return tree_search(key, p->left);
   else
-    return tree_search(low_high, key, p->right);
+    return tree_search(key, p->right);
 }
 
 struct tree *insert_key(int key, struct tree *p){
@@ -44,10 +44,10 @@ struct tree *insert_key(int key, struct tree *p){
     return p;
   }
   else
-    return NULL;
+    return p;
 }
 
-void index_tree_to_index_array(int *place, unsigned* ray, struct tree *p){
+void index_tree_to_index_array(int *place, int *ray, struct tree *p){
   if (p != NULL){
     index_tree_to_index_array(place, ray, p->left);
     ray[*place] = p->key;
@@ -57,18 +57,22 @@ void index_tree_to_index_array(int *place, unsigned* ray, struct tree *p){
 }
 
 void generate_subsets(int seed, int set_size, int subset_size, int *subset){
-  void index_tree_to_index_array(int *place, unsigned* ray, struct tree *p);
+  void index_tree_to_index_array(int *place, int *ray, struct tree *p);
   void tree_free(struct tree *p);
+  void tree_print(struct tree *p);
 
   struct tree *forbidden = NULL;
   struct tree *temp = NULL;
+  int key;
+  int push;
 
   for (int k = 0; k < subset_size; k++){
-    int key = rand() % set_size;
-    if (tree_search(key, forbidden) != 0)
-      insert_key(int key, struct tree *p)
-    else
-      forbidden = temp;
+    key = rand() % set_size;
+    while (tree_search(key, forbidden) == 1) {
+      push = rand() % 2;
+      key += (1 - push) - push;
+    }
+    forbidden = insert_key(key, forbidden);
   }
 
   int place = 0;
@@ -84,12 +88,20 @@ void tree_free(struct tree *p){
   }
 }
 
+void tree_print(struct tree *p){
+  if (p != NULL) {
+    tree_free(p->left);
+    printf("%d, ", p->key);
+    tree_free(p->right);
+  }
+}
+
 int main(int argc, char const *argv[]) {
   clock_t start = clock();
   void generate_subsets(int seed, int set_size, int subset_size, int *subset);
   struct tree *construct_tree(int low, int high);
   void tree_print(struct tree *p);
-  void index_tree_to_index_array(int *place, unsigned* ray, struct tree *p);
+  void index_tree_to_index_array(int *place, int * ray, struct tree *p);
 
   int set_size, subset_size, num_of_subsets;
   if (argc > 3){
@@ -106,7 +118,9 @@ int main(int argc, char const *argv[]) {
   int seed = time(NULL);
   srand(seed);
   printf("\n");
-  int *subset = malloc(subset_size*sizeof(unsigned));
+  int *subset = malloc(subset_size*sizeof(int ));
+  for (int i = 0; i < subset_size; i++)
+    subset[i] = -1;
   for (int k = 0; k < num_of_subsets; k++) {
     generate_subsets(seed, set_size, subset_size, subset);
     printf("{");
