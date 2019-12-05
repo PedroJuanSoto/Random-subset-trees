@@ -81,16 +81,17 @@ void min_max_search(int low_high[2], int key, struct tree *p){
 
 struct tree *remove_key(int key, struct tree *p){
   void min_max_search(int low_high[2], int key, struct tree *p);
-  int min_max[2] = {INT_MAX, INT_MIN};
 
   if (p->key == key)
     if (p->left != NULL){
+      int min_max[2] = {INT_MAX, INT_MIN};
       min_max_search(min_max, p->key, p->left);
       p->key = min_max[1];
       p->left = remove_key(min_max[1], p->left);
       return p;
     }
     else if (p->right != NULL){
+      int min_max[2] = {INT_MAX, INT_MIN};
       min_max_search(min_max, p->key, p->right);
       p->key = min_max[0];
       p->right = remove_key(min_max[0], p->right);
@@ -129,31 +130,46 @@ struct tree *insert_key(int key, struct tree *p){
   }
 }
 
+unsigned uabs(int x){
+  return (unsigned) abs(x);
+}
+
 struct tree *update_set(int key, struct tree *p, struct tree **ind){
+// struct tree *update_set(int* place, int* indices, int key, struct tree *p){
   int tree_search(int low_high[2], int key, struct tree *p);
   struct tree *remove_key(int key, struct tree *p);
   int min_max[2] = {INT_MIN, INT_MAX};
   struct tree *insert_key(int key, struct tree *p);
 
   if (tree_search(min_max, key, p) == 1){
+    // indices[*place] = key;
+    // *place = (*place)+1;
     *ind = insert_key(key, *ind);
     return remove_key(key, p);
   }
-  else if (key - min_max[0] < min_max[1] - key){
+  else if (uabs(key - min_max[0]) < uabs(min_max[1] - key)){
+    // indices[*place] = min_max[0];
+    // *place = (*place)+1;
     *ind = insert_key(min_max[0], *ind);
     return remove_key(min_max[0], p);
   }
-  else if (key - min_max[0] > min_max[1] - key){
+  else if (uabs(key - min_max[0]) > uabs(min_max[1] - key)){
+    // indices[*place] = min_max[1];
+    // *place = (*place)+1;
     *ind = insert_key(min_max[1], *ind);
     return remove_key(min_max[1], p);
   }
   else{
     int coin = rand() % 2;
     if (coin == 0){
+      // indices[*place] = min_max[0];
+      // *place = (*place)+1;
       *ind = insert_key(min_max[0], *ind);
       return remove_key(min_max[0], p);
     }
     else{
+      // indices[*place] = min_max[1];
+      // *place = (*place)+1;
       *ind = insert_key(min_max[1], *ind);
       return remove_key(min_max[1], p);
     }
@@ -170,21 +186,34 @@ void index_tree_to_index_array(int *place, int* ray, struct tree *p){
 }
 
 void generate_batch_indices(int seed, int data_size, int batch_size, int *batch_indices){
+  void tree_print(struct tree *p);
   struct tree *update_set(int key, struct tree *p, struct tree **ind);
+  // struct tree *update_set(int *place, int *batch_indices, int key, struct tree *p);
   void index_tree_to_index_array(int *place, int* ray, struct tree *p);
   struct tree *construct_tree(int low, int high);
+  void tree_free(struct tree *p);
 
   struct tree *potentials = construct_tree(0, data_size-1);
   struct tree *forbidden = NULL;
   srand(seed);
 
+  // int place = 0;
   for (int k = 0; k < batch_size; k++)
     potentials = update_set(rand() % data_size, potentials, &forbidden);
+    // potentials = update_set(&place, batch_indices, rand() % data_size, potentials);
 
   int place = 0;
   index_tree_to_index_array(&place, batch_indices, forbidden);
-  free(potentials);
-  free(forbidden);
+  tree_free(potentials);
+  tree_free(forbidden);
+}
+
+void tree_free(struct tree *p){
+  if (p != NULL) {
+    tree_free(p->left);
+    tree_free(p->right);
+    free(p);
+  }
 }
 
 int main(int argc, char const *argv[]) {
@@ -193,14 +222,16 @@ int main(int argc, char const *argv[]) {
   void tree_print(struct tree *p);
   void index_tree_to_index_array(int *place, int* ray, struct tree *p);
 
-  int seed = time(0);
-  int data_size = 100;
+  int seed = time(NULL);
+  srand(seed);
+  int data_size = 10;
   int batch_size = 7;
   printf("\n");
   int *batch_indices = malloc(batch_size*sizeof(int));
-  for (int k = 0; k < 100; k++) {
+  for (int k = 0; k < 500000; k++) {
+    printf("%s\n", "gen start");
+    generate_batch_indices(seed, data_size, batch_size, batch_indices);
     printf("Here is a random subset for n = %d, k = %d\n", data_size, batch_size);
-    generate_batch_indices(rand(), data_size, batch_size, batch_indices);
     for (int i = 0; i < batch_size; i++) {
       printf("%d, ", batch_indices[i]);
     }
@@ -216,6 +247,7 @@ void tree_print(struct tree *p){
     tree_print(p->right);
   }
 }
+
 
 // int tree_count(struct tree *p){
 //   if (p != NULL) {
