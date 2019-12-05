@@ -17,6 +17,17 @@ struct tree *talloc(int key){
   return root;
 }
 
+int tree_search(int key, struct tree *p){
+  if (p == NULL)
+    return 0;
+  else if (p->key == key)
+    return 1;
+  else if (key < p->key)
+    return tree_search(low_high, key, p->left);
+  else
+    return tree_search(low_high, key, p->right);
+}
+
 struct tree *insert_key(int key, struct tree *p){
   if (p == NULL){
     struct tree *root = talloc(key);
@@ -36,7 +47,7 @@ struct tree *insert_key(int key, struct tree *p){
     return NULL;
 }
 
-void index_tree_to_index_array(int *place, int* ray, struct tree *p){
+void index_tree_to_index_array(int *place, unsigned* ray, struct tree *p){
   if (p != NULL){
     index_tree_to_index_array(place, ray, p->left);
     ray[*place] = p->key;
@@ -46,15 +57,16 @@ void index_tree_to_index_array(int *place, int* ray, struct tree *p){
 }
 
 void generate_subsets(int seed, int set_size, int subset_size, int *subset){
-  void index_tree_to_index_array(int *place, int* ray, struct tree *p);
+  void index_tree_to_index_array(int *place, unsigned* ray, struct tree *p);
   void tree_free(struct tree *p);
 
   struct tree *forbidden = NULL;
   struct tree *temp = NULL;
 
   for (int k = 0; k < subset_size; k++){
-    if ((temp = insert_key(rand() % set_size, forbidden)) == NULL)
-      k = k-1;
+    int key = rand() % set_size;
+    if (tree_search(key, forbidden) != 0)
+      insert_key(int key, struct tree *p)
     else
       forbidden = temp;
   }
@@ -77,7 +89,7 @@ int main(int argc, char const *argv[]) {
   void generate_subsets(int seed, int set_size, int subset_size, int *subset);
   struct tree *construct_tree(int low, int high);
   void tree_print(struct tree *p);
-  void index_tree_to_index_array(int *place, int* ray, struct tree *p);
+  void index_tree_to_index_array(int *place, unsigned* ray, struct tree *p);
 
   int set_size, subset_size, num_of_subsets;
   if (argc > 3){
@@ -94,7 +106,7 @@ int main(int argc, char const *argv[]) {
   int seed = time(NULL);
   srand(seed);
   printf("\n");
-  int *subset = malloc(subset_size*sizeof(int));
+  int *subset = malloc(subset_size*sizeof(unsigned));
   for (int k = 0; k < num_of_subsets; k++) {
     generate_subsets(seed, set_size, subset_size, subset);
     printf("{");
