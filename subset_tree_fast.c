@@ -68,10 +68,8 @@ void generate_subsets(int seed, int set_size, int subset_size, int *subset){
 
   for (int k = 0; k < subset_size; k++){
     key = rand() % set_size;
-    while (tree_search(key, forbidden) == 1) {
-      push = rand() % 2;
-      key += (1 - push) - push;
-    }
+    while (tree_search(key, forbidden) == 1)
+      key = rand() % set_size;
     forbidden = insert_key(key, forbidden);
   }
 
